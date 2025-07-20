@@ -5,7 +5,7 @@
     .dependencies = .{
         .zul = .{
             .url = "https://github.com/karlseguin/zul/archive/e48d01c578b95c1a15957ba819e4094bff982277.tar.gz",
-            .hash = "122033def62ec92564cc4936cb870f44d9e6e8aece152bf72be564b1cac542638c76",
+            .hash = "zul-0.0.0-AAAAAB1CBwAz3vYuySVkzEk2y4cPRNnm6K7OFSv3K-Vk",
         },
     },
 
