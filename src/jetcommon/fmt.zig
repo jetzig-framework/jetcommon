@@ -13,14 +13,19 @@ pub fn zig(
 
     const alloc = arena.allocator();
 
+    var fixups: std.zig.Ast.Render.Fixups = .{};
+    defer fixups.deinit(alloc);
+
     const ast = try std.zig.Ast.parse(
         alloc,
         try std.mem.concatWithSentinel(alloc, u8, &.{input}, 0),
         .zig,
     );
     if (ast.errors.len > 0) {
-        const tty = std.io.tty.detectConfig(std.io.getStdErr());
-        const writer = std.io.getStdErr().writer();
+        const tty = std.io.tty.detectConfig(std.fs.File.stderr());
+        var stderr_fw = std.fs.File.stderr().writer(&.{});
+        const writer = &stderr_fw.interface;
+
         var it = std.mem.tokenizeScalar(u8, input, '\n');
         var line_number: usize = 1;
         while (it.next()) |line| : (line_number += 1) {
@@ -48,5 +53,11 @@ pub fn zig(
         try tty.setColor(writer, .reset);
         return error.JetCommonInvalidZigCode;
     }
-    return try ast.render(allocator);
+
+    var aw: std.Io.Writer.Allocating = .init(alloc);
+    defer aw.deinit();
+
+    try ast.render(allocator, &aw.writer, fixups);
+
+    return aw.getWritten();
 }
