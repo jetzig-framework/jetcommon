@@ -36,8 +36,9 @@ pub fn zig(
             const error_message = if (maybe_err) |err| blk: {
                 var buf = std.ArrayList(u8).init(alloc);
                 const err_writer = buf.writer();
+                var new_interface = err_writer.adaptToNewApi().new_interface;
                 try err_writer.writeAll(" // ");
-                try ast.renderError(err, err_writer);
+                try ast.renderError(err, &new_interface);
                 break :blk try buf.toOwnedSlice();
             } else "";
             try writer.print("{: <4} {s}{s}\n", .{
