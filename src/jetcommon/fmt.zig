@@ -1,4 +1,5 @@
 const std = @import("std");
+const ArrayList = std.ArrayList;
 
 /// Parse and format Zig code from `input`. If errors are detected, the generated code is printed
 /// to stderr with error information at the lines that failed. If present, `message` is printed
@@ -34,12 +35,12 @@ pub fn zig(
             } else null;
             try tty.setColor(writer, if (maybe_err != null) .red else .cyan);
             const error_message = if (maybe_err) |err| blk: {
-                var buf = std.ArrayList(u8).init(alloc);
-                const err_writer = buf.writer();
-                var new_interface = err_writer.adaptToNewApi().new_interface;
+                var buf: ArrayList(u8) = try .initCapacity(alloc, 0);
+                const buf_writer: std.Io.Writer.Allocating = .fromArrayList(alloc, &buf);
+                var err_writer = buf_writer.writer;
                 try err_writer.writeAll(" // ");
-                try ast.renderError(err, &new_interface);
-                break :blk try buf.toOwnedSlice();
+                try ast.renderError(err, &err_writer);
+                break :blk try buf.toOwnedSlice(alloc);
             } else "";
             try writer.print("{: <4} {s}{s}\n", .{
                 line_number,
@@ -60,5 +61,5 @@ pub fn zig(
 
     try ast.render(allocator, &aw.writer, fixups);
 
-    return aw.getWritten();
+    return aw.toOwnedSlice();
 }
