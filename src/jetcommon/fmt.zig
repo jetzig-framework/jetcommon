@@ -1,23 +1,27 @@
 const std = @import("std");
 const ArrayList = std.ArrayList;
+const Writer = std.Io.Writer;
+const Allocator = std.mem.Allocator;
+const ArenaAllocator = std.heap.ArenaAllocator;
+const Ast = std.zig.Ast;
 
 /// Parse and format Zig code from `input`. If errors are detected, the generated code is printed
 /// to stderr with error information at the lines that failed. If present, `message` is printed
 /// at the end of the error output. Caller owns allocated slice.
 pub fn zig(
-    allocator: std.mem.Allocator,
+    allocator: Allocator,
     input: []const u8,
     message: ?[]const u8,
 ) ![]const u8 {
-    var arena = std.heap.ArenaAllocator.init(allocator);
+    var arena: ArenaAllocator = .init(allocator);
     defer arena.deinit();
 
     const alloc = arena.allocator();
 
-    var fixups: std.zig.Ast.Render.Fixups = .{};
+    var fixups: Ast.Render.Fixups = .{};
     defer fixups.deinit(alloc);
 
-    const ast = try std.zig.Ast.parse(
+    const ast = try Ast.parse(
         alloc,
         try std.mem.concatWithSentinel(alloc, u8, &.{input}, 0),
         .zig,
@@ -35,12 +39,11 @@ pub fn zig(
             } else null;
             try tty.setColor(writer, if (maybe_err != null) .red else .cyan);
             const error_message = if (maybe_err) |err| blk: {
-                var buf: ArrayList(u8) = try .initCapacity(alloc, 0);
-                const buf_writer: std.Io.Writer.Allocating = .fromArrayList(alloc, &buf);
-                var err_writer = buf_writer.writer;
-                try err_writer.writeAll(" // ");
-                try ast.renderError(err, &err_writer);
-                break :blk try buf.toOwnedSlice(alloc);
+                var aw: Writer.Allocating = .init(alloc);
+                defer aw.deinit();
+                try aw.writer.writeAll(" // ");
+                try ast.renderError(err, &aw.writer);
+                break :blk try aw.toOwnedSlice();
             } else "";
             try writer.print("{: <4} {s}{s}\n", .{
                 line_number,
