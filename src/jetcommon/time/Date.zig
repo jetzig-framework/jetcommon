@@ -23,11 +23,9 @@ pub fn parse(input: []const u8, fmt: Format) !Date {
 
 pub fn format(
     self: Date,
-    comptime actual_format: []const u8,
-    options: std.fmt.FormatOptions,
     writer: *Writer,
 ) !void {
-    try self.zul_date.format(actual_format, options, writer);
+    try self.zul_date.format(writer);
 }
 
 test {

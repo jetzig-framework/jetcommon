@@ -71,11 +71,9 @@ pub fn compare(self: DateTime, comptime operator: Operator, other: DateTime) boo
 
 pub fn format(
     self: DateTime,
-    comptime actual_format: []const u8,
-    options: std.fmt.FormatOptions,
     writer: *Writer,
 ) !void {
-    try self.zul_datetime.format(actual_format, options, writer);
+    try self.zul_datetime.format(writer);
 }
 
 pub fn dayOfWeek(self: DateTime) u4 {
