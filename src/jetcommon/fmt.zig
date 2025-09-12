@@ -27,7 +27,7 @@ pub fn zig(
         .zig,
     );
     if (ast.errors.len > 0) {
-        const tty = std.io.tty.detectConfig(std.fs.File.stderr());
+        const tty = std.Io.tty.detectConfig(std.fs.File.stderr());
         var stderr_fw = std.fs.File.stderr().writer(&.{});
         const writer = &stderr_fw.interface;
 
