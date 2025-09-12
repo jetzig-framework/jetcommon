@@ -1,4 +1,5 @@
 const std = @import("std");
+const Writer = std.Io.Writer;
 
 const zul = @import("zul");
 
@@ -72,7 +73,7 @@ pub fn format(
     self: DateTime,
     comptime actual_format: []const u8,
     options: std.fmt.FormatOptions,
-    writer: anytype,
+    writer: *Writer,
 ) !void {
     try self.zul_datetime.format(actual_format, options, writer);
 }
@@ -164,13 +165,13 @@ pub inline fn microseconds(self: DateTime) i64 {
     return self.zul_datetime.micros;
 }
 
-pub fn toJson(self: DateTime, writer: anytype) !void {
+pub fn toJson(self: DateTime, writer: *Writer) !void {
     try self.strftime(writer,
         \\"%Y-%m-%dT%H:%M:%SZ"
     );
 }
 
-pub fn toString(self: DateTime, writer: anytype) !void {
+pub fn toString(self: DateTime, writer: *Writer) !void {
     try self.strftime(writer, "%c");
 }
 
@@ -178,7 +179,7 @@ pub fn eql(self: DateTime, other: DateTime) bool {
     return self.zul_datetime.micros == other.zul_datetime.micros;
 }
 
-pub fn strftime(self: DateTime, writer: anytype, comptime fmt: []const u8) !void {
+pub fn strftime(self: DateTime, writer: *Writer, comptime fmt: []const u8) !void {
     comptime var index: usize = 0;
 
     inline while (index < fmt.len) {

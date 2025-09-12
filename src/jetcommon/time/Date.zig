@@ -1,4 +1,5 @@
 const std = @import("std");
+const Writer = std.Io.Writer;
 
 const zul = @import("zul");
 
@@ -24,7 +25,7 @@ pub fn format(
     self: Date,
     comptime actual_format: []const u8,
     options: std.fmt.FormatOptions,
-    writer: anytype,
+    writer: *Writer,
 ) !void {
     try self.zul_date.format(actual_format, options, writer);
 }
