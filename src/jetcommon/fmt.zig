@@ -15,7 +15,6 @@ pub fn zig(
 ) ![]const u8 {
     var arena: ArenaAllocator = .init(allocator);
     defer arena.deinit();
-
     const alloc = arena.allocator();
 
     var fixups: Ast.Render.Fixups = .{};
@@ -40,9 +39,8 @@ pub fn zig(
             try tty.setColor(writer, if (maybe_err != null) .red else .cyan);
             const error_message = if (maybe_err) |err| blk: {
                 var buf_writer: Writer.Allocating = .init(alloc);
-                var err_writer = buf_writer.writer;
-                try err_writer.writeAll(" // ");
-                try ast.renderError(err, &err_writer);
+                try buf_writer.writer.writeAll(" // ");
+                try ast.renderError(err, &buf_writer.writer);
                 break :blk try buf_writer.toOwnedSlice();
             } else "";
             try writer.print("{: <4} {s}{s}\n", .{
@@ -62,7 +60,8 @@ pub fn zig(
     var aw: Writer.Allocating = .init(alloc);
     defer aw.deinit();
 
-    try ast.render(allocator, &aw.writer, fixups);
-
-    return aw.toOwnedSlice();
+    try ast.render(alloc, &aw.writer, fixups);
+    const output = try aw.toOwnedSlice();
+    defer alloc.free(output);
+    return allocator.dupe(u8, output);
 }
