@@ -2,28 +2,24 @@ const std = @import("std");
 const Writer = std.Io.Writer;
 
 const zul = @import("zul");
+const TimestampPrecision = zul.DateTime.TimestampPrecision;
 
 const Time = @import("../time.zig").Time;
 const Date = @import("../time.zig").Date;
-const TimestampPrecision = @import("../time.zig").TimestampPrecision;
 const Operator = @import("../../jetcommon.zig").Operator;
 
 const DateTime = @This();
-pub const DateTimeFormat = enum { rfc3339, iso8601 };
+// pub const DateTimeFormat = enum { rfc3339, iso8601 };
+pub const DateTimeFormat = zul.DateTime.Format;
 
 zul_datetime: zul.DateTime,
 
 pub fn fromUTC(year_: i16, month_: u8, day_: u8, hour_: u8, min: u8, sec: u8, micros: u32) !DateTime {
-    return .{ .zul_datetime = try zul.DateTime.initUTC(year_, month_, day_, hour_, min, sec, micros) };
+    return .{ .zul_datetime = try .initUTC(year_, month_, day_, hour_, min, sec, micros) };
 }
 
 pub fn fromUnix(value: i64, precision: TimestampPrecision) !DateTime {
-    const zul_datetime = switch (precision) {
-        .seconds => try zul.DateTime.fromUnix(value, .seconds),
-        .milliseconds => try zul.DateTime.fromUnix(value, .milliseconds),
-        .microseconds => try zul.DateTime.fromUnix(value, .microseconds),
-    };
-    return .{ .zul_datetime = zul_datetime };
+    return .{ .zul_datetime = try .fromUnix(value, precision) };
 }
 
 pub fn now() DateTime {
@@ -31,8 +27,7 @@ pub fn now() DateTime {
 }
 
 pub fn parse(input: []const u8) !DateTime {
-    const zul_datetime = try zul.DateTime.parse(input, .rfc3339);
-    return .{ .zul_datetime = zul_datetime };
+    return .{ .zul_datetime = try .parse(input, .rfc3339) };
 }
 
 pub fn date(self: DateTime) Date {
@@ -44,28 +39,17 @@ pub fn time(self: DateTime) Time {
 }
 
 pub fn unix(self: DateTime, precision: TimestampPrecision) i64 {
-    return switch (precision) {
-        .seconds => self.zul_datetime.unix(.seconds),
-        .milliseconds => self.zul_datetime.unix(.milliseconds),
-        .microseconds => self.zul_datetime.unix(.microseconds),
-    };
+    return self.zul_datetime.unix(precision);
 }
 
 pub fn compare(self: DateTime, comptime operator: Operator, other: DateTime) bool {
     const cmp = self.zul_datetime.order(other.zul_datetime);
-    return switch (cmp) {
-        .eq => switch (operator) {
-            .equal, .less_or_equal, .greater_or_equal => true,
-            else => false,
-        },
-        .lt => switch (operator) {
-            .less_or_equal, .less_than => true,
-            else => false,
-        },
-        .gt => switch (operator) {
-            .greater_or_equal, .greater_than => true,
-            else => false,
-        },
+    return switch (operator) {
+        .equal => cmp == .eq,
+        .less_than => cmp == .lt,
+        .greater_than => cmp == .gt,
+        .less_or_equal => cmp == .eq or cmp == .lt,
+        .greater_or_equal => cmp == .eq or cmp == .gt,
     };
 }
 
