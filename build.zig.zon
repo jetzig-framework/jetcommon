@@ -4,8 +4,8 @@
     .version = "0.1.0",
     .dependencies = .{
         .zul = .{
-            .url = "https://github.com/karlseguin/zul/archive/e770047f208cf4538fcd9fc64550c84fd5492fc4.tar.gz",
-            .hash = "zul-0.0.0-1oDot9yRBwDA_ovd6GC1M_ViW3LarywMaGrH6vcuEjqv",
+            .url = "https://github.com/karlseguin/zul/archive/bf04b1e725ce57bad6c4cfa0d29e405f86df3015.tar.gz",
+            .hash = "zul-0.0.0-1oDot6-iBwAqlLUK89028p23CMbVwv7z2cIVAwG4bMM9",
         },
     },
 
