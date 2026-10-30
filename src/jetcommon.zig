@@ -10,5 +10,6 @@ pub const Date = types.Date;
 pub const Operator = enum { equal, less_than, greater_than, less_or_equal, greater_or_equal };
 
 test {
-    std.testing.refAllDeclsRecursive(@This());
+    _ = @import("jetcommon/time/Date.zig");
+    _ = @import("jetcommon/time/DateTime.zig");
 }
