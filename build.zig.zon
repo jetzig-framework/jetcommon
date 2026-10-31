@@ -4,8 +4,8 @@
     .version = "0.1.0",
     .dependencies = .{
         .zul = .{
-            .url = "git+https://github.com/brianvar/zul.git?ref=0.17.x#9442561baef5adc0d510e4a94975815556932ae2",
-            .hash = "zul-0.0.0-1oDot8OwBwDcPrPGAQbq0BCM_2sk0FFK1dWUEPd_U26Z",
+            .url = "git+https://github.com/karlseguin/zul.git?ref=master#23f1ecb429ff29aae8aee6e01e634cbc4e3f8f89",
+            .hash = "zul-0.0.0-1oDot4qyBwBmL8stIJbg3wdoeKqILNPOrf5DzWxGrkxs",
         },
     },
 
